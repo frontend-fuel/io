@@ -118,11 +118,10 @@ void loop() {
   float hum = dht.readHumidity();
 
   if (!isnan(temp) &amp;&amp; !isnan(hum)) {
-    // Print to Serial Monitor
+    
     Serial.print("Temp: "); Serial.print(temp); Serial.print(" C ");
     Serial.print("Hum: "); Serial.println(hum);
 
-    // Display on TFT
     tft.fillScreen(ST77XX_BLACK);
     tft.setTextColor(ST77XX_WHITE);
     tft.setTextSize(1);
@@ -131,7 +130,6 @@ void loop() {
     tft.setCursor(10, 30);
     tft.print("Hum: "); tft.print(hum); tft.print(" %");
 
-    // Display alert if needed
     if (temp &gt; 35 || hum &lt; 30) {
       tft.setTextColor(ST77XX_RED);
       tft.setCursor(10, 50);
@@ -180,7 +178,7 @@ void loop() {
   Serial.println(" cm");
 
   if (d > 10) {
-    digitalWrite(G, HIGH);  // Green LED ON - Slot Available
+    digitalWrite(G, HIGH);  
     digitalWrite(B, LOW);
     digitalWrite(R, LOW);
     noTone(BUZZER);
@@ -194,11 +192,11 @@ void loop() {
     noTone(BUZZER);
   }
   else {
-    // Vehicle detected very close (within 10 cm)
-    digitalWrite(G, LOW);  // Indicating slot is occupied
+    
+    digitalWrite(G, LOW);  
     digitalWrite(B, LOW);
     digitalWrite(R, HIGH);
-    tone(BUZZER, 1000);      // Continuous alert if needed
+    tone(BUZZER, 1000);      
     Serial.println("Slot Occupied");
   }
 
@@ -294,7 +292,6 @@ void loop() {
   if (bt.available()) {
     char cmd = bt.read();
     
-    // Clear the serial buffer before printing the received command.
     if (cmd == 'O') {
       digitalWrite(LED, HIGH);
       Serial.println("LED ON");
