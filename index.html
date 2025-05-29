@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arduino Programs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .program-box {
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f9f9f9;
+    }
+    .code-container {
+      display: none;
+      margin-top: 10px;
+      background: #272822;
+      color: #f8f8f2;
+      padding: 10px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+    .btn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  
+
+  <div class="program-box">
+    <h2>1</h2>
+    <button class="btn" onclick="toggleCode('code1')">Show/Hide Code</button>
+    <button class="btn" onclick="copyCode('code1')">Copy Code</button>
+    <pre id="code1" class="code-container">
+#define AOUT_PIN A1 // A1 pin 
+#define LED 9 
+int value; 
+void Soil_Moisture_Sensor(); 
+void setup()  
+{ 
+  Serial.begin(9600); 
+  pinMode(LED, OUTPUT); 
+} 
+void loop()  
+{ 
+  Soil_Moisture_Sensor();  
+} 
+void Soil_Moisture_Sensor() 
+{ 
+  value = analogRead(AOUT_PIN); // read the analog value from sensor 
+  Serial.print("Moisture value: "); 
+  Serial.println(value); 
+  float moisturePercent = map(value, 1023, 300, 0, 100);
+  moisturePercent = constrain(moisturePercent, 0, 100);
+  Serial.print("Moisture Percentage: ");
+  Serial.print(moisturePercent);
+  Serial.println("%");
+  if (moisturePercent < 30) 
+  { 
+    digitalWrite(LED, HIGH); 
+    Serial.println("⚠️ WARNING: Soil moisture below 30% - TOO DRY!"); 
+  } 
+  else 
+  { 
+    digitalWrite(LED, LOW); 
+    Serial.println("Soil moisture is sufficient."); 
+  } 
+  delay(500); 
+}
+    </pre>
+  </div>
+  <div class="program-box">
+  <h2>2</h2>
+  <button class="btn" onclick="toggleCode('code2')">Show/Hide Code</button>
+  <button class="btn" onclick="copyCode('code2')">Copy Code</button>
+  <pre id="code2" class="code-container">
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_ST7735.h&gt;
+#include &lt;DHT.h&gt;
+
+#define TFT_CS 10
+#define TFT_RST 9
+#define TFT_DC 8
+#define DHTPIN 2
+#define Buzzer 4
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(Buzzer, OUTPUT);
+  dht.begin();
+  tft.initR(INITR_BLACKTAB);
+  tft.setRotation(3);
+}
+
+void loop() {
+  float temp = dht.readTemperature();
+  float hum = dht.readHumidity();
+
+  if (!isnan(temp) &amp;&amp; !isnan(hum)) {
+    // Print to Serial Monitor
+    Serial.print("Temp: "); Serial.print(temp); Serial.print(" C ");
+    Serial.print("Hum: "); Serial.println(hum);
+
+    // Display on TFT
+    tft.fillScreen(ST77XX_BLACK);
+    tft.setTextColor(ST77XX_WHITE);
+    tft.setTextSize(1);
+    tft.setCursor(10, 10);
+    tft.print("Temp: "); tft.print(temp); tft.print(" C");
+    tft.setCursor(10, 30);
+    tft.print("Hum: "); tft.print(hum); tft.print(" %");
+
+    // Display alert if needed
+    if (temp &gt; 35 || hum &lt; 30) {
+      tft.setTextColor(ST77XX_RED);
+      tft.setCursor(10, 50);
+      tft.print("ALERT!");
+    }
+
+    // Control Buzzer based on temperature
+    digitalWrite(Buzzer, temp &gt; 29 ? HIGH : LOW);
+  }
+
+  delay(2000);
+}
+  </pre>
+</div>
+<div class="program-box">
+  <h2>3</h2>
+  <button class="btn" onclick="toggleCode('code3')">Show/Hide Code</button>
+  <button class="btn" onclick="copyCode('code3')">Copy Code</button>
+  <pre id="code3" class="code-container">
+#define TRIG 9
+#define ECHO 10
+#define BUZZER 6
+#define G 4
+#define B 5
+#define R 3
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(G, OUTPUT);
+  pinMode(B, OUTPUT); 
+  pinMode(R, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(TRIG, LOW); 
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH); 
+  delayMicroseconds(10); 
+  digitalWrite(TRIG, LOW);
+  float d = pulseIn(ECHO, HIGH) * 0.034 / 2;
+  Serial.print("Distance: "); 
+  Serial.print(d); 
+  Serial.println(" cm");
+
+  if (d > 10) {
+    digitalWrite(G, HIGH);  // Green LED ON - Slot Available
+    digitalWrite(B, LOW);
+    digitalWrite(R, LOW);
+    noTone(BUZZER);
+  }
+  else if (d > 5) {
+    digitalWrite(G, LOW);
+    digitalWrite(B, HIGH);
+    digitalWrite(R, LOW);
+    tone(BUZZER, 1000, 200);
+    delay(500);
+    noTone(BUZZER);
+  }
+  else {
+    // Vehicle detected very close (within 10 cm)
+    digitalWrite(G, LOW);  // Indicating slot is occupied
+    digitalWrite(B, LOW);
+    digitalWrite(R, HIGH);
+    tone(BUZZER, 1000);      // Continuous alert if needed
+    Serial.println("Slot Occupied");
+  }
+
+  delay(200);
+}
+  </pre>
+</div>
+
+<div class="program-box">
+  <h2>4</h2>
+  <button class="btn" onclick="toggleCode('code4')">Show/Hide Code</button>
+  <button class="btn" onclick="copyCode('code4')">Copy Code</button>
+  <pre id="code4" class="code-container">
+from machine import ADC, Pin
+import time
+
+water_sensor = ADC(Pin(26))
+buzzer = Pin(15, Pin.OUT)
+
+while True:
+    raw_value = water_sensor.read_u16()
+    voltage = (raw_value / 65535) * 3.3
+    percentage = (raw_value / 65535) * 100
+
+    print(f"Raw: {raw_value}, Voltage: {voltage:.2f}V, Water Level: {percentage:.2f}%")
+
+    if percentage &gt; 80:
+        buzzer.value(1)
+    else:
+        buzzer.value(0)
+
+    time.sleep(1)
+  </pre>
+</div>
+<div class="program-box">
+  <h2>5</h2>
+  <button class="btn" onclick="toggleCode('code5')">Show/Hide Code</button>
+  <button class="btn" onclick="copyCode('code5')">Copy Code</button>
+  <pre id="code5" class="code-container">
+#include &lt;Wire.h&gt;
+#include &lt;BH1750.h&gt;
+
+BH1750 lightMeter;
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  pinMode(7, OUTPUT);
+
+  if (!lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
+    Serial.println("BH1750 Error");
+    while (1);
+  }
+
+  Serial.println("BH1750 Ready");
+}
+
+void loop() {
+  float lux = lightMeter.readLightLevel();
+  Serial.print("Light: "); Serial.print(lux); Serial.println(" lx");
+
+  digitalWrite(7, lux &lt; 90 ? HIGH : LOW);
+  Serial.println(lux &lt; 90 ? "Street Light ON" : "Street Light OFF");
+
+  delay(1000);
+}
+  </pre>
+</div>
+<div class="program-box">
+  <h2>6</h2>
+  <button class="btn" onclick="toggleCode('code6')">Show/Hide Code</button>
+  <button class="btn" onclick="copyCode('code6')">Copy Code</button>
+  <pre id="code6" class="code-container">
+#include &lt;SoftwareSerial.h&gt;
+
+#define LED 13
+#define R 5
+#define G 6
+#define B 7
+
+SoftwareSerial bt(2, 3); // RX, TX
+
+void setup() {
+  Serial.begin(9600);
+  bt.begin(9600);
+  pinMode(LED, OUTPUT);
+  pinMode(R, OUTPUT);
+  pinMode(G, OUTPUT);
+  pinMode(B, OUTPUT);
+}
+
+void loop() {
+  if (bt.available()) {
+    char cmd = bt.read();
+    
+    // Clear the serial buffer before printing the received command.
+    if (cmd == 'O') {
+      digitalWrite(LED, HIGH);
+      Serial.println("LED ON");
+    }
+    else if (cmd == 'F') {
+      digitalWrite(LED, LOW);
+      digitalWrite(R, LOW);
+      digitalWrite(G, LOW);
+      digitalWrite(B, LOW);
+      Serial.println("LED OFF, RGB OFF");
+    }
+    else if (cmd == 'R') {
+      digitalWrite(R, HIGH);
+      digitalWrite(G, LOW);
+      digitalWrite(B, LOW);
+      Serial.println("Red LED ON");
+    }
+    else if (cmd == 'G') {
+      digitalWrite(R, LOW);
+      digitalWrite(G, HIGH);
+      digitalWrite(B, LOW);
+      Serial.println("Green LED ON");
+    }
+    else if (cmd == 'B') {
+      digitalWrite(R, LOW);
+      digitalWrite(G, LOW);
+      digitalWrite(B, HIGH);
+      Serial.println("Blue LED ON");
+    }
+  }
+}
+  </pre>
+</div>
+
+
+  <script>
+    function toggleCode(id) {
+      const codeBlock = document.getElementById(id);
+      codeBlock.style.display = codeBlock.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function copyCode(id) {
+      const codeBlock = document.getElementById(id);
+      const textArea = document.createElement("textarea");
+      textArea.value = codeBlock.textContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      alert("Code copied to clipboard!");
+    }
+  </script>
+
+</body>
+</html>
